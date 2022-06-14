@@ -37,6 +37,8 @@ private:
 	PmxLoader m_pmxLoader;
 
 	PmxData m_modelData;
+
+	unique_ptr<DescriptorHeap> descHeaps;
 };
 
 #define PMX ModelRenderer;

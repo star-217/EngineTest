@@ -3,6 +3,8 @@
 void ConstantBuffer::Init(int size)
 {
 	//ConstantBufferÇÃê∂ê¨
+	size = (size + 0xff) & ~0xff;
+
 	HRESULT result;
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 	auto rDesc = CD3DX12_RESOURCE_DESC::Buffer(size);

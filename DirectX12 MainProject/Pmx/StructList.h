@@ -189,3 +189,10 @@ struct PmxData {
 	std::vector<Material> material;											//マテリアルデータ
 	std::vector<Bone> bones;												//ボーンデータ
 };
+
+struct VSOUT
+{
+	XMMATRIX world;
+	XMMATRIX view;
+	XMMATRIX proj;
+};
