@@ -498,7 +498,18 @@ void GameBase::CreateDevice()
                 // Don't select the Basic Render Driver adapter.
                 return;
             }
+            // Debuglayer
+#if defined(DEBUG) || defined(_DEBUG)
+{
+                ComPtr<ID3D12Debug> debug;
+                auto hr = D3D12GetDebugInterface(IID_PPV_ARGS(debug.GetAddressOf()));
 
+                if (SUCCEEDED(hr))
+                {
+                    debug->EnableDebugLayer();
+                }
+}
+#endif
             // Create the DX12 API device object.
             if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), FEATURE_LEVEL, IID_PPV_ARGS(m_devices[m_adapterCount].Device.ReleaseAndGetAddressOf()))))
             {
@@ -1070,11 +1081,11 @@ void GameBase::D3D11CreateDevice()
         m_d2dRenderTargets  [frame].Reset();
         m_wrappedBackBuffers[frame].Reset();
 
-        // Create a wrapped 11On12 resource of this back buffer. Since we are 
-        // rendering all D3D12 content first and then all D2D content, we specify 
-        // the In resource state as RENDER_TARGET - because D3D12 will have last 
-        // used it in this state - and the Out resource state as PRESENT. When 
-        // ReleaseWrappedResources() is called on the 11On12 device, the resource 
+        // Create a wrapped 11On12 resource of this back buffer. Since we are
+        // rendering all D3D12 content first and then all D2D content, we specify
+        // the In resource state as RENDER_TARGET - because D3D12 will have last
+        // used it in this state - and the Out resource state as PRESENT. When
+        // ReleaseWrappedResources() is called on the 11On12 device, the resource
         // will be transitioned to the PRESENT state.
         D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
         DX::ThrowIfFailed(m_d3d11on12Device->CreateWrappedResource(
@@ -1193,7 +1204,7 @@ void GameBase::D3D9CreateDevice()
     m_devices[PrimaryAdapter].Device->GetCopyableFootprints(
         &tex_desc, 0, 1, 0, &m_d3d12Footprint, nullptr, nullptr, &total_bytes
     );
- 
+
     D3D12_RESOURCE_DESC up_desc{};
     up_desc.Dimension        = D3D12_RESOURCE_DIMENSION_BUFFER;
     up_desc.Width            = total_bytes;
@@ -1321,7 +1332,7 @@ void GameBase::D3D9UpdateResource()
 
     //resourceUploadBatch.Upload    (resource, 0, &subresource, 1);
     //resourceUploadBatch.Transition(
-    //    resource, 
+    //    resource,
     //    D3D12_RESOURCE_STATE_COPY_DEST,
     //    D3D12_RESOURCE_STATE_COMMON
     //);

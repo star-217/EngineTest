@@ -16,7 +16,6 @@ MainScene::MainScene()
 void MainScene::Initialize()
 {
 	reimu.Init("‚É‚ª‚à‚ñŽ®—ì–²/reimu.pmx");
-
 }
 
 // Allocate all memory the Direct3D and Direct2D resources.
@@ -50,9 +49,13 @@ void MainScene::OnRestartSound()
 // Updates the scene.
 NextScene MainScene::Update(const float deltaTime)
 {
+	//‚ ‚Æ‚Å— ‚É‰ñ‚·
+#if defined(DEBUG) || defined(_DEBUG)
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif//defined(DEBUG) || defined(_DEBUG)
+
 	// If you use 'deltaTime', remove it.
 	UNREFERENCED_PARAMETER(deltaTime);
-
 	// TODO: Add your game logic here.
 
 

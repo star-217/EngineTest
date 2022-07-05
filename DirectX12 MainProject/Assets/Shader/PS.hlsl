@@ -1,18 +1,22 @@
-Texture2D<float4> tex : register(t0);
-SamplerState      samp : register(s0);
-
-struct VSOUT
+struct VSOutput
 {
-	float4 svpos  : SV_POSITION;
-	float4 normal : NORMAL;
-	float2 uv     : TEXCOORD;
+	float4 Position : SV_POSITION;
+	float4 Color    : COLOR;
 };
 
-float4 BasicPS(VSOUT input) : SV_TARGET
+struct PSOutput
 {
-	//float3 light = normalize(float3(1,-1,5));
-	//float brightness = max(dot(-light, input.normal), 0.0f);
-	//brightness = min(brightness + 0.25f, 1.0f);
+	float4 Color : SV_TARGET0;//ピクセルカラー
+};
 
-	return float4(1,1,1,1) * tex.Sample(samp,input.uv);
+//-----------------------------------------------------------------------------
+//			ピクセルシェーダーのエントリーポイント
+//-----------------------------------------------------------------------------
+PSOutput main(VSOutput input)
+{
+	PSOutput output = (PSOutput)0;
+
+	output.Color = input.Color;
+
+	return output;
 }
