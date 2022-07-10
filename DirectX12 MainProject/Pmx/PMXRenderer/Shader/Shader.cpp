@@ -1,30 +1,62 @@
 #include "Shader.h"
-#include <d3dcompiler.h>
-#pragma comment(lib,"d3dcompiler.lib")
+#include <experimental/filesystem>
+#include <dxcapi.h>
+#include <fstream>
+#pragma comment(lib, "dxcompiler.lib")
 
-void Shader::Init()
+HRESULT Shader::Init(
+    const std::wstring& fileName, const std::wstring& profile,
+    ComPtr<ID3DBlob>& shaderBlob, ComPtr<ID3DBlob>& errorBlob)
 {
-	HRESULT result;
+    using namespace std::experimental::filesystem;
 
-	ComPtr<ID3DBlob> errorBlob;
-	result = D3DCompileFromFile(
-		L"VS.hlsl",
-		nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		"BasicVS", "vs_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0,
-		vsBlob.ReleaseAndGetAddressOf(),
-		errorBlob.ReleaseAndGetAddressOf()
-	);
-	DX::ThrowIfFailed(result);
+    path filePath(fileName);
+    std::ifstream infile(filePath);
+    std::vector<char> srcData;
+    if (!infile)
+        throw std::runtime_error("shader not found");
+    srcData.resize(uint32_t(infile.seekg(0, infile.end).tellg()));
+    infile.seekg(0, infile.beg).read(srcData.data(), srcData.size());
 
-	result = D3DCompileFromFile(
-		L"PS.hlsl",
-		nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		"BasicPS", "ps_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0,
-		psBlob.ReleaseAndGetAddressOf(),
-		errorBlob.ReleaseAndGetAddressOf()
-	);
-	DX::ThrowIfFailed(result);
+    // DXC によるコンパイル処理
+    ComPtr<IDxcLibrary> library;
+    ComPtr<IDxcCompiler> compiler;
+    ComPtr<IDxcBlobEncoding> source;
+    ComPtr<IDxcOperationResult> dxcResult;
+
+    DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&library));
+    library->CreateBlobWithEncodingFromPinned(srcData.data(), UINT(srcData.size()), CP_ACP, &source);
+    DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler));
+
+    LPCWSTR compilerFlags[] = {
+  #if _DEBUG
+      L"/Zi", L"/O0",
+  #else
+      L"/O2" // リリースビルドでは最適化
+  #endif
+    };
+    compiler->Compile(source.Get(), filePath.wstring().c_str(),
+        L"main", profile.c_str(),
+        compilerFlags, _countof(compilerFlags),
+        nullptr, 0, // Defines
+        nullptr,
+        &dxcResult);
+
+    HRESULT hr;
+    dxcResult->GetStatus(&hr);
+    if (SUCCEEDED(hr))
+    {
+        dxcResult->GetResult(
+            reinterpret_cast<IDxcBlob**>(shaderBlob.GetAddressOf())
+        );
+    }
+    else
+    {
+        dxcResult->GetErrorBuffer(
+            reinterpret_cast<IDxcBlobEncoding**>(errorBlob.GetAddressOf())
+        );
+    }
+    return hr;
+
 }
 

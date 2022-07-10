@@ -24,7 +24,7 @@ public:
 	IndexBuffer() {};
 	virtual ~IndexBuffer() {};
 
-	void Init(int size, int stride);
+	void Init(int size);
 	void Copy(void* data);
 
 private:

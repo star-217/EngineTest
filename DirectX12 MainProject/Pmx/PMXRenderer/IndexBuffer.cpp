@@ -1,6 +1,6 @@
 #include "IndexBuffer.h"
 
-void IndexBuffer::Init(int size, int stride)
+void IndexBuffer::Init(int size)
 {
 	//IndexBufferÇÃê∂ê¨
 	HRESULT result;

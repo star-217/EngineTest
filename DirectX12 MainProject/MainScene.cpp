@@ -15,7 +15,7 @@ MainScene::MainScene()
 // Initialize a variable and audio resources.
 void MainScene::Initialize()
 {
-	reimu.Init("‚É‚ª‚à‚ñŽ®—ì–²/reimu.pmx");
+
 }
 
 // Allocate all memory the Direct3D and Direct2D resources.

@@ -22,10 +22,8 @@ using namespace DirectX::SimpleMath;
 class Shader {
 
 public:
-	void Init();
+	HRESULT Init(const std::wstring& fileName, const std::wstring& profile, ComPtr<ID3DBlob>& shaderBlob, ComPtr<ID3DBlob>& errorBlob);
 
 private:
-	ComPtr<ID3DBlob> vsBlob;
-	ComPtr<ID3DBlob> psBlob;
 
 };
