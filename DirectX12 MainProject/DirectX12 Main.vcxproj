@@ -77,8 +77,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\DirectX12AffinityLayer;$(SolutionDir)\DirectXTK12\Inc;$(SolutionDir)\DirectXTK9\Inc;$(SolutionDir)\DirectXTK9\DirectShow\BaseClasses;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\DirectX12AffinityLayer;$(SolutionDir)\DirectXTK12\Inc;$(SolutionDir)\DirectXTK9\Inc;$(SolutionDir)\DirectXTK9\DirectShow\BaseClasses;$(SolutionDir)\ImGui;$(SolutionDir)\GLTF\include;$(IncludePath)</IncludePath>
     <TargetName>$(SolutionName)</TargetName>
+    <LibraryPath>$(SolutionDir)\GLTF\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -198,6 +199,8 @@
     <ClInclude Include="Pmx\StructList.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneFactory.h" />
+    <ClInclude Include="TestGLTF\Model.h" />
+    <ClInclude Include="TestGLTF\StreamRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Base\GameBase.cpp">
@@ -223,6 +226,7 @@
     <ClCompile Include="Pmx\PMXRenderer\ModelRenderer.cpp" />
     <ClCompile Include="Pmx\PMXRenderer\Shader\Shader.cpp" />
     <ClCompile Include="Pmx\PMXRenderer\VertexBuffer.cpp" />
+    <ClCompile Include="TestGLTF\Model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource\resource.rc" />

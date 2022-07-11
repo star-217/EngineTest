@@ -19,6 +19,9 @@
     <Filter Include="Pmx\PMX\PMXRenderer">
       <UniqueIdentifier>{46fb0d32-912a-450b-8d53-1948c49f6a5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TestGLTF">
+      <UniqueIdentifier>{166f2809-fc73-4d57-bb6d-f497aa39395a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\d3dx12.h">
@@ -72,6 +75,12 @@
     <ClInclude Include="Pmx\PMXRenderer\Shader\Shader.h">
       <Filter>Pmx\PMX\PMXRenderer</Filter>
     </ClInclude>
+    <ClInclude Include="TestGLTF\StreamRenderer.h">
+      <Filter>TestGLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="TestGLTF\Model.h">
+      <Filter>TestGLTF</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Base\Main.cpp">
@@ -103,6 +112,9 @@
     </ClCompile>
     <ClCompile Include="Pmx\PMXRenderer\Shader\Shader.cpp">
       <Filter>Pmx\PMX\PMXRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="TestGLTF\Model.cpp">
+      <Filter>TestGLTF</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

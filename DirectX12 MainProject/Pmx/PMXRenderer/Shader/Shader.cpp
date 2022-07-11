@@ -1,14 +1,17 @@
 #include "Shader.h"
-#include <experimental/filesystem>
 #include <dxcapi.h>
 #include <fstream>
 #pragma comment(lib, "dxcompiler.lib")
+
+#include <filesystem>
+
+using namespace std::filesystem;
 
 HRESULT Shader::Init(
     const std::wstring& fileName, const std::wstring& profile,
     ComPtr<ID3DBlob>& shaderBlob, ComPtr<ID3DBlob>& errorBlob)
 {
-    using namespace std::experimental::filesystem;
+
 
     path filePath(fileName);
     std::ifstream infile(filePath);
