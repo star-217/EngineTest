@@ -26,6 +26,7 @@ public:
 
 	void Init(int size,int stride);
 	void Copy(void* data);
+	D3D12_VERTEX_BUFFER_VIEW GetView() { return m_vertexBufferView; }
 
 private:
 

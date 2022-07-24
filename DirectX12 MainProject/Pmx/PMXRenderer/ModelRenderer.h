@@ -11,6 +11,7 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 #include "../StructList.h"
+#include "Shader/Shader.h"
 #include "Pmx/PmxLoader.h"
 
 /*

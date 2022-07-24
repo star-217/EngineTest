@@ -19,6 +19,7 @@ void IndexBuffer::Init(int size)
 	m_indexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
 	m_indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 	m_indexBufferView.SizeInBytes = size;
+	m_indexCount = size;
 
 }
 

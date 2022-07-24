@@ -26,9 +26,12 @@ public:
 
 	void Init(int size);
 	void Copy(void* data);
+	D3D12_INDEX_BUFFER_VIEW GetView() { return m_indexBufferView; }
+	UINT GetCount() { return m_indexCount; }
 
 private:
 
 	ComPtr<ID3D12Resource>		m_indexBuffer;
 	D3D12_INDEX_BUFFER_VIEW		m_indexBufferView;
+	UINT m_indexCount;
 };

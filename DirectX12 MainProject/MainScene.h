@@ -38,6 +38,17 @@ public:
 private:
 	ModelRenderer reimu;
 
+	struct Vertex
+	{
+		DirectX::XMFLOAT3 Pos;
+		DirectX::XMFLOAT4 Color;
+	};
+	VertexBuffer m_vertexBuff;
+	IndexBuffer  m_indexBuff;
+	Shader	     m_shader;
 
+	ComPtr<ID3DBlob>  m_vs, m_ps;
+	ComPtr<ID3D12RootSignature> m_rootSignature;
+	ComPtr<ID3D12PipelineState> m_pipeline;
 
 };
