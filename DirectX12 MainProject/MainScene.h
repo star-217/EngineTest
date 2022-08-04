@@ -44,16 +44,26 @@ private:
 		DirectX::XMFLOAT4 Color;
 		DirectX::XMFLOAT2 UV;
 	};
+	struct VSOUT
+	{
+		DirectX::XMFLOAT4X4 mtxWorld;
+		DirectX::XMFLOAT4X4 mtxView;
+		DirectX::XMFLOAT4X4 mtxProj;
+	};
 	VertexBuffer m_vertexBuff;
 	IndexBuffer  m_indexBuff;
+	ConstantBuffer m_constantBuff;
 	Shader	     m_shader;
 
 	ComPtr<ID3DBlob>  m_vs, m_ps;
 	ComPtr<ID3D12RootSignature> m_rootSignature;
 	ComPtr<ID3D12PipelineState> m_pipeline;
 
-	unique_ptr<DescriptorHeap>  m_resourceDescriptors;
+	unique_ptr<DescriptorHeap>  m_heapSrvCbv;
+	unique_ptr<DescriptorHeap>  m_heapSampler;
 
 	//! コンスタントバッファー
 	ComPtr<ID3D12Resource> m_constantBuffer;
+	//! テクスチャ
+	ComPtr<ID3D12Resource> m_tex;
 };

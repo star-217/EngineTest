@@ -15,22 +15,58 @@ MainScene::MainScene()
 // Initialize a variable and audio resources.
 void MainScene::Initialize()
 {
+	const float k = 1.0f;
+	const DirectX::XMFLOAT4 red(1.0f, 0.0f, 0.0f, 1.0f);
+	const DirectX::XMFLOAT4 green(0.0f, 1.0f, 0.0f, 1.0f);
+	const DirectX::XMFLOAT4 blue(0.0f, 0.0f, 1.0f, 1.0);
+	const DirectX::XMFLOAT4 white(1.0f, 1.0f, 1.0f, 1.0f);
+	const DirectX::XMFLOAT4 black(0.0f, 0.0f, 0.0f, 1.0f);
+	const DirectX::XMFLOAT4 yellow(1.0f, 1.0f, 0.0f, 1.0f);
+	const DirectX::XMFLOAT4 magenta(1.0f, 0.0f, 1.0f, 1.0f);
+	const DirectX::XMFLOAT4 cyan(0.0f, 1.0f, 1.0f, 1.0f);
+
 
 	Vertex triangleVertices[] = {
-  { {  0.0f, 0.25f, 0.5f }, { 1.0f, 0.0f,0.0f,1.0f} },
-  { { 0.25f,-0.25f, 0.5f }, { 0.0f, 1.0f,0.0f,1.0f} },
-  { {-0.25f,-0.25f, 0.5f }, { 0.0f, 0.0f,1.0f,1.0f} },
+		// 正面
+		  { {-k,-k,-k}, red, { 0.0f, 1.0f} },
+		  { {-k, k,-k}, yellow, { 0.0f, 0.0f} },
+		  { { k, k,-k}, white, { 1.0f, 0.0f} },
+		  { { k,-k,-k}, magenta, { 1.0f, 1.0f} },
+		  // 右
+		  { { k,-k,-k}, magenta, { 0.0f, 1.0f} },
+		  { { k, k,-k}, white, { 0.0f, 0.0f} },
+		  { { k, k, k}, cyan, { 1.0f, 0.0f} },
+		  { { k,-k, k}, blue, { 1.0f, 1.0f} },
+		  // 左
+		  { {-k,-k, k}, black, { 0.0f, 1.0f} },
+		  { {-k, k, k}, green, { 0.0f, 0.0f} },
+		  { {-k, k,-k}, yellow, { 1.0f, 0.0f} },
+		  { {-k,-k,-k}, red, { 1.0f, 1.0f} },
+		  // 裏
+		  { { k,-k, k}, blue, { 0.0f, 1.0f} },
+		  { { k, k, k}, cyan, { 0.0f, 0.0f} },
+		  { {-k, k, k}, green, { 1.0f, 0.0f} },
+		  { {-k,-k, k}, black, { 1.0f, 1.0f} },
+		  // 上
+		  { {-k, k,-k}, yellow, { 0.0f, 1.0f} },
+		  { {-k, k, k}, green, { 0.0f, 0.0f} },
+		  { { k, k, k}, cyan, { 1.0f, 0.0f} },
+		  { { k, k,-k}, white, { 1.0f, 1.0f} },
+		  // 底
+		  { {-k,-k, k}, red, { 0.0f, 1.0f} },
+		  { {-k,-k,-k}, red, { 0.0f, 0.0f} },
+		  { { k,-k,-k}, magenta, { 1.0f, 0.0f} },
+		  { { k,-k, k}, blue, { 1.0f, 1.0f} },
 	};
 
-	uint32_t indices[] = { 0, 1, 2 };
-
-	m_resourceDescriptors = make_unique<DescriptorHeap>(DXTK->Device, 1);
-
-	m_vertexBuff.Init(sizeof(triangleVertices), sizeof(Vertex));
-	m_vertexBuff.Copy(triangleVertices);
-	m_indexBuff.Init(sizeof(indices));
-	m_indexBuff.Copy(indices);
-
+	uint32_t indices[] = {
+	0, 1, 2, 2, 3,0,
+	4, 5, 6, 6, 7,4,
+	8, 9, 10, 10, 11, 8,
+	12,13,14, 14,15,12,
+	16,17,18, 18,19,16,
+	20,21,22, 22,23,20,
+	};
 
 	HRESULT hr;
 	ComPtr<ID3DBlob> errBlob;
@@ -44,13 +80,26 @@ void MainScene::Initialize()
 	{
 		OutputDebugStringA((const char*)errBlob->GetBufferPointer());
 	}
+
+	m_resourceDescriptors = make_unique<DescriptorHeap>(DXTK->Device, 1);
+
+	m_vertexBuff.Init(sizeof(triangleVertices), sizeof(Vertex));
+	m_vertexBuff.Copy(triangleVertices);
+	m_indexBuff.Init(sizeof(indices));
+	m_indexBuff.Copy(indices);
+
+
 	//デスクリプターレンジ
-	CD3DX12_DESCRIPTOR_RANGE descRange = {};
-	descRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);//RangeType,NumDesc,ShaderRagister
+	CD3DX12_DESCRIPTOR_RANGE cbv, srv, sampler;
+	cbv.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);//RangeType,NumDesc,ShaderRagister b0レジスタ
+	srv.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);//t0 レジスタ
+	sampler.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);//s0 レジスタ
 
 	//ルートパラメーター
-	CD3DX12_ROOT_PARAMETER rootParam = {};
-	rootParam.InitAsDescriptorTable(1, &descRange);// NumDescRange,pDescRange
+	CD3DX12_ROOT_PARAMETER rootParam[3] = {};
+	rootParam[0].InitAsDescriptorTable(1, &cbv,D3D12_SHADER_VISIBILITY_VERTEX);// NumDescRange,pDescRange
+	rootParam[1].InitAsDescriptorTable(1, &srv, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootParam[2].InitAsDescriptorTable(1, &sampler, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//サンプラー
 	CD3DX12_STATIC_SAMPLER_DESC samplerDesc = {};
@@ -59,7 +108,7 @@ void MainScene::Initialize()
 	//ルートシグネチャの構築
 	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc{};
 	rootSigDesc.Init(
-		1, &rootParam, //pParameters
+		_countof(rootParam), rootParam, //pParameters
 		1, &samplerDesc, //pStaticSamplers
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 	);
@@ -82,7 +131,8 @@ void MainScene::Initialize()
 	// インプットレイアウト
 	D3D12_INPUT_ELEMENT_DESC inputElementDesc[] = {
 		{"POSITION",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0},
-		{"COLOR",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
+		{"COLOR",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0},
+		{"TEXCOORD",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
 	};
 	// パイプラインステートオブジェクトの生成
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
@@ -118,6 +168,43 @@ void MainScene::Initialize()
 	{
 		throw std::runtime_error("CreateGraphicsPipelineState failed");
 	}
+	//コンスタントバッファー
+	m_constantBuff.Init(sizeof(VSOUT));
+	auto descAddr = m_resourceDescriptors->GetCpuHandle(0);
+	m_constantBuff.RegistConstantBufferView(descAddr);
+
+	m_resourceDescriptors = make_unique<DescriptorHeap>(DXTK->Device, 1);
+	m_textureDescriptors = make_unique<DescriptorHeap>(DXTK->Device, 1);
+
+	//テクスチャ
+	ResourceUploadBatch resourceUpload(DXTK->Device);
+	resourceUpload.Begin();
+	DX12::CreateTextureSRV(
+		DXTK->Device, L"texture.tga",
+		resourceUpload, m_textureDescriptors.get(),
+		1, m_tex.ReleaseAndGetAddressOf()
+	);
+
+	auto uploadResourcesFinished = resourceUpload.End(DXTK->CommandQueue);
+	uploadResourcesFinished.wait();
+
+	// 各行列のセット.
+	VSOUT shaderParams;
+	XMStoreFloat4x4(&shaderParams.mtxWorld, XMMatrixRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMConvertToRadians(45.0f)));
+	auto mtxView = XMMatrixLookAtLH(
+		XMVectorSet(0.0f, 3.0f, -5.0f, 0.0f),
+		XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
+		XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
+	);
+	auto mtxProj = XMMatrixPerspectiveFovLH(XMConvertToRadians(45.0f), 1280 / 720, 0.1f, 100.0f);
+	XMStoreFloat4x4(&shaderParams.mtxView, XMMatrixTranspose(mtxView));
+	XMStoreFloat4x4(&shaderParams.mtxProj, XMMatrixTranspose(mtxProj));
+
+	VSOUT* mapBuffer = nullptr;
+	m_constantBuffer->Map(0, nullptr, (void**)&mapBuffer);
+	memcpy(mapBuffer, &shaderParams, sizeof(shaderParams));
+	m_constantBuffer->Unmap(0, nullptr);
+
 }
 
 // Allocate all memory the Direct3D and Direct2D resources.
