@@ -42,6 +42,7 @@ private:
 	{
 		DirectX::XMFLOAT3 Pos;
 		DirectX::XMFLOAT4 Color;
+		DirectX::XMFLOAT2 UV;
 	};
 	VertexBuffer m_vertexBuff;
 	IndexBuffer  m_indexBuff;
@@ -51,4 +52,8 @@ private:
 	ComPtr<ID3D12RootSignature> m_rootSignature;
 	ComPtr<ID3D12PipelineState> m_pipeline;
 
+	unique_ptr<DescriptorHeap>  m_resourceDescriptors;
+
+	//! コンスタントバッファー
+	ComPtr<ID3D12Resource> m_constantBuffer;
 };

@@ -24,28 +24,43 @@ void MainScene::Initialize()
 
 	uint32_t indices[] = { 0, 1, 2 };
 
+	m_resourceDescriptors = make_unique<DescriptorHeap>(DXTK->Device, 1);
+
 	m_vertexBuff.Init(sizeof(triangleVertices), sizeof(Vertex));
 	m_vertexBuff.Copy(triangleVertices);
 	m_indexBuff.Init(sizeof(indices));
 	m_indexBuff.Copy(indices);
 
+
 	HRESULT hr;
 	ComPtr<ID3DBlob> errBlob;
-	hr = m_shader.Init(L"Shader/test1/VS.hlsl", L"vs_6_0", m_vs, errBlob);
+	hr = m_shader.Init(L"Shader/test2cubeTex/VS.hlsl", L"vs_6_0", m_vs, errBlob);
 	if (FAILED(hr))
 	{
 		OutputDebugStringA((const char*)errBlob->GetBufferPointer());
 	}
-	hr = m_shader.Init(L"Shader/test1/PS.hlsl", L"ps_6_0", m_ps, errBlob);
+	hr = m_shader.Init(L"Shader/test2cubeTex/PS.hlsl", L"ps_6_0", m_ps, errBlob);
 	if (FAILED(hr))
 	{
 		OutputDebugStringA((const char*)errBlob->GetBufferPointer());
 	}
+	//デスクリプターレンジ
+	CD3DX12_DESCRIPTOR_RANGE descRange = {};
+	descRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);//RangeType,NumDesc,ShaderRagister
+
+	//ルートパラメーター
+	CD3DX12_ROOT_PARAMETER rootParam = {};
+	rootParam.InitAsDescriptorTable(1, &descRange);// NumDescRange,pDescRange
+
+	//サンプラー
+	CD3DX12_STATIC_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Init(0);
+
 	//ルートシグネチャの構築
 	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc{};
 	rootSigDesc.Init(
-		0, nullptr, //pParameters
-		0, nullptr, //pStaticSamplers
+		1, &rootParam, //pParameters
+		1, &samplerDesc, //pStaticSamplers
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 	);
 	ComPtr<ID3DBlob> signature;
@@ -55,10 +70,10 @@ void MainScene::Initialize()
 		throw std::runtime_error("D3D12SerializeRootSignature faild");
 	}
 	//RootSignatureの生成
-	hr = DXTK->Device->CreateRootSignature(
-		0,
-		signature->GetBufferPointer(), signature->GetBufferSize(),
-		IID_PPV_ARGS(&m_rootSignature)
+	hr = DirectX::CreateRootSignature(
+		DXTK->Device,
+		&rootSigDesc,
+		m_rootSignature.ReleaseAndGetAddressOf()
 	);
 	if (FAILED(hr))
 	{
@@ -66,11 +81,18 @@ void MainScene::Initialize()
 	}
 	// インプットレイアウト
 	D3D12_INPUT_ELEMENT_DESC inputElementDesc[] = {
-		{"POSITION",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,offsetof(Vertex,Pos),D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA},
-		{"COLOR",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,offsetof(Vertex,Color),D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA}
+		{"POSITION",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0},
+		{"COLOR",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
 	};
 	// パイプラインステートオブジェクトの生成
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+	//レンダーターゲットブレンド生成
+	D3D12_RENDER_TARGET_BLEND_DESC renderTargetBlendDesc = {};
+	renderTargetBlendDesc.BlendEnable = false;
+	renderTargetBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	renderTargetBlendDesc.LogicOpEnable = false;
+	//パイプラインレンダーターゲット
+	psoDesc.BlendState.RenderTarget[0] = renderTargetBlendDesc;
 	//シェーダーのセット
 	psoDesc.VS = CD3DX12_SHADER_BYTECODE(m_vs.Get());
 	psoDesc.PS = CD3DX12_SHADER_BYTECODE(m_ps.Get());
@@ -91,7 +113,7 @@ void MainScene::Initialize()
 	//マルチサンプル設定
 	psoDesc.SampleDesc = { 1,0 };
 	psoDesc.SampleMask = UINT_MAX;
-	hr = DXTK->Device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipeline));
+	hr = DXTK->Device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(m_pipeline.ReleaseAndGetAddressOf()));
 	if (FAILED(hr))
 	{
 		throw std::runtime_error("CreateGraphicsPipelineState failed");

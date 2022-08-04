@@ -206,7 +206,7 @@ private:
 #endif
 
     // Rendering resources
-    Microsoft::WRL::ComPtr<IDXGISwapChain3>           m_swapChain;
+    Microsoft::WRL::ComPtr<IDXGISwapChain4>           m_swapChain;
     Microsoft::WRL::ComPtr<ID3D12Resource>            m_depthStencil;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>      m_dsvDescriptorHeap;
     UINT                                              m_backBufferIndex;
